@@ -31,6 +31,8 @@ public class FilesConfig {
     public static final String organizationNameMaterial = "/org/apdplat/qa/files/organization_name_material.txt";
     public static final String numberMaterial = "/org/apdplat/qa/files/number_material.txt";
     public static final String timeMaterial = "/org/apdplat/qa/files/time_material.txt";
+    public static final String doctorMaterial = "doctor_material.txt";
+
 
     public static final String personNameQuestions = "/org/apdplat/qa/files/person_name_questions.txt";
     public static final String locationNameQuestions = "/org/apdplat/qa/files/location_name_questions.txt";

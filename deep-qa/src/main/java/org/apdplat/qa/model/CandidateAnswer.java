@@ -50,6 +50,17 @@ public class CandidateAnswer implements Comparable<CandidateAnswer> {
         this.score += score;
     }
 
+    public Evidence getEvidence() {
+        return evidence;
+    }
+
+    private Evidence evidence;
+
+    public void setEvidence(Evidence evidence){
+        this.evidence = evidence;
+    }
+
+
     @Override
     public int compareTo(CandidateAnswer o) {
         if (o != null && o instanceof CandidateAnswer) {

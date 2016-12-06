@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apdplat.qa.datasource.BaiduDataSource;
 import org.apdplat.qa.model.CandidateAnswer;
+import org.apdplat.qa.model.Evidence;
 import org.apdplat.qa.model.Question;
 import org.apdplat.qa.system.CommonQuestionAnsweringSystem;
 import org.apdplat.qa.system.QuestionAnsweringSystem;
@@ -72,6 +73,19 @@ public class JsonGenerator {
         }
         return "[]";
     }
+
+    public static String generateE(List<Evidence> candidateAnswers) {
+        if(candidateAnswers==null){
+            return "[]";
+        }
+        try {
+            return MAPPER.writeValueAsString(candidateAnswers);
+        } catch (Exception e) {
+            LOG.error("生成候选答案的json表示出错", e);
+        }
+        return "[]";
+    }
+
 
     public static void main(String[] args) {
         QuestionAnsweringSystem questionAnsweringSystem = new CommonQuestionAnsweringSystem();

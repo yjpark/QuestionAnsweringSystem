@@ -35,6 +35,9 @@ public class Evidence {
     private String title;
     private String snippet;
     private double score = 1.0;
+
+    private int id;
+
     private CandidateAnswerCollection candidateAnswerCollection;
 
     public List<String> getTitleWords() {
@@ -99,5 +102,13 @@ public class Evidence {
 
     public void setCandidateAnswerCollection(CandidateAnswerCollection candidateAnswerCollection) {
         this.candidateAnswerCollection = candidateAnswerCollection;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

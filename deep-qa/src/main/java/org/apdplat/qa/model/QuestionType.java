@@ -26,7 +26,7 @@ package org.apdplat.qa.model;
  */
 public enum QuestionType {
 
-    NULL("未知"), PERSON_NAME("人名 "), LOCATION_NAME("地名"), ORGANIZATION_NAME("团体机构名"), NUMBER("数字"), TIME("时间"), DEFINITIION("定义"), OBJECT("对象");
+    NULL("未知"), PERSON_NAME("人名 "), LOCATION_NAME("地名"), ORGANIZATION_NAME("团体机构名"), NUMBER("数字"), TIME("时间"), MEDICAL("医疗"), DEFINITIION("定义"), OBJECT("对象");
 
     public String getPos() {
         String pos = "unknown";

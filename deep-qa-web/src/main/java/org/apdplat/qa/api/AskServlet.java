@@ -29,8 +29,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apdplat.qa.SharedQuestionAnsweringSystem;
-import org.apdplat.qa.model.CandidateAnswer;
+import org.apdplat.qa.DoctorQuestionAnsweringSystem;
+import org.apdplat.qa.model.Evidence;
 import org.apdplat.qa.model.Question;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +54,9 @@ public class AskServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        LOG.info("处理页面问题请求...............");
+
         response.setContentType("application/json;charset=UTF-8"); 
         response.setCharacterEncoding("UTF-8"); 
         request.setCharacterEncoding("UTF-8");
@@ -65,16 +68,19 @@ public class AskServlet extends HttpServlet {
             topN = Integer.parseInt(n);
         }
         Question question = null;
-        List<CandidateAnswer> candidateAnswers = null;
+        final  List<Evidence> evidences = null;
         if (questionStr != null && questionStr.trim().length() > 3) {
-            question = SharedQuestionAnsweringSystem.getInstance().answerQuestion(questionStr);
+            question = DoctorQuestionAnsweringSystem.getInstance().answerQuestion(questionStr);
             if (question != null) {
-                candidateAnswers = question.getAllCandidateAnswer();
+                List l = question.getTopNEvidence(1);
+                for (Object o: l) {
+                    evidences.add((Evidence)o);
+                }
             }
         }
         LOG.info("问题："+questionStr); 
         try (PrintWriter out = response.getWriter()) {
-            String json = JsonGenerator.generate(candidateAnswers, topN);
+            String json = JsonGenerator.generateE(evidences);
             out.println(json);
             LOG.info("答案："+json);
         }

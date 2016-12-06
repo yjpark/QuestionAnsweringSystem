@@ -6,7 +6,7 @@ if [ -f ~/tomcat-8.0.27.zip ] ; then
     echo tomcat-8.0.27 prepared
 else
     echo downloading tomcat8.0.27...
-    wget http://archive.apache.org/dist/tomcat/tomcat-8/v8.0.27/bin/apache-tomcat-8.0.27.zip
+    axel http://archive.apache.org/dist/tomcat/tomcat-8/v8.0.27/bin/apache-tomcat-8.0.27.zip
     echo tomcat has been downloaded
     mv apache-tomcat-8.0.27.zip ~/tomcat-8.0.27.zip
     echo copy finished

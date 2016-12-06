@@ -20,13 +20,8 @@
 
 package org.apdplat.qa.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apdplat.qa.filter.CandidateAnswerCanNotInQustionFilter;
 import org.apdplat.qa.filter.CandidateAnswerFilter;
@@ -155,7 +150,7 @@ public class Question {
         for (Map.Entry<String, Double> entry : map.entrySet()) {
             String answer = entry.getKey();
             Double score = entry.getValue();
-            if (answer != null && score != null && score > 0 && score < Double.MAX_VALUE) {
+            if (answer != null && score != null && score > 0 && score <= Double.MAX_VALUE) {
                 CandidateAnswer candidateAnswer = new CandidateAnswer();
                 candidateAnswer.setAnswer(answer);
                 candidateAnswer.setScore(score);
@@ -275,5 +270,19 @@ public class Question {
 
     public void setCandidateAnswerFilter(CandidateAnswerFilter candidateAnswerFilter) {
         this.candidateAnswerFilter = candidateAnswerFilter;
+    }
+
+    /**
+     * 返回topN的证据
+     * @param N
+     * @return
+     */
+    public List<Object> getTopNEvidence(int N){
+        return this.getEvidences().stream().sorted(new Comparator<Evidence>() {
+            @Override
+            public int compare(Evidence o1, Evidence o2) {
+                return (int)Math.rint(o2.getScore() - o1.getScore());
+            }
+        }).limit(N).collect(Collectors.toList());
     }
 }
