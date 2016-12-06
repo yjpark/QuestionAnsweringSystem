@@ -51,7 +51,7 @@ public class GitFileDataSource implements  DataSource{
         for (String file : files) {
             BufferedReader reader = null;
             try {
-                Path filePath = FileSystems.getDefault().getPath("./data/doctor/", file);
+                Path filePath = FileSystems.getDefault().getPath("/data/doctor/", file);
                 InputStream in = Files.newInputStream(filePath);
                 reader = new BufferedReader(new InputStreamReader(in, "utf-8"));
                 Question question = null;
@@ -163,7 +163,7 @@ public class GitFileDataSource implements  DataSource{
         }
 
         Question question = dataSource.getQuestions().get(0);
-        question.setQuestion("请问如何数胎动");
+        question.setQuestion("关于雾霾的问题");
 
         QuestionAnsweringSystem questionAnsweringSystem = new CommonQuestionAnsweringSystem();
         questionAnsweringSystem.answerQuestion(question);

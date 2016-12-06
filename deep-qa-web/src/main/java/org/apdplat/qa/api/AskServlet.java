@@ -23,6 +23,7 @@ package org.apdplat.qa.api;
 import edu.stanford.nlp.util.StringUtils;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apdplat.qa.DoctorQuestionAnsweringSystem;
+import org.apdplat.qa.model.CandidateEvidence;
 import org.apdplat.qa.model.Evidence;
 import org.apdplat.qa.model.Question;
 import org.slf4j.Logger;
@@ -68,13 +70,18 @@ public class AskServlet extends HttpServlet {
             topN = Integer.parseInt(n);
         }
         Question question = null;
-        final  List<Evidence> evidences = null;
+        final  List<CandidateEvidence> evidences = new ArrayList<>();
         if (questionStr != null && questionStr.trim().length() > 3) {
             question = DoctorQuestionAnsweringSystem.getInstance().answerQuestion(questionStr);
             if (question != null) {
-                List l = question.getTopNEvidence(1);
+                List l = question.getTopNEvidence(topN);
                 for (Object o: l) {
-                    evidences.add((Evidence)o);
+                    Evidence evidence = (Evidence)o;
+                    CandidateEvidence candidateEvidence = new CandidateEvidence();
+                    candidateEvidence.setAnswer(evidence.getSnippet());
+                    candidateEvidence.setQuestionStr(questionStr);
+                    candidateEvidence.setScore(evidence.getScore());
+                    evidences.add(candidateEvidence);
                 }
             }
         }

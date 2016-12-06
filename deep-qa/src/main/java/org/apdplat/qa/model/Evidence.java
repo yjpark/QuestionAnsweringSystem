@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apdplat.qa.parser.WordParser;
 import org.apdplat.word.segmentation.Word;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  * 证据由title和snippet组成 对于同一个问题来说，不同的证据的重要性是不一样的，所以证据有分值 证据有多个候选答案
@@ -72,6 +73,7 @@ public class Evidence {
         return result;
     }
 
+    @JsonSerialize()
     public String getTitle() {
         return title;
     }

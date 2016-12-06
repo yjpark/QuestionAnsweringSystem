@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apdplat.qa.datasource.BaiduDataSource;
 import org.apdplat.qa.model.CandidateAnswer;
+import org.apdplat.qa.model.CandidateEvidence;
 import org.apdplat.qa.model.Evidence;
 import org.apdplat.qa.model.Question;
 import org.apdplat.qa.system.CommonQuestionAnsweringSystem;
@@ -74,7 +75,7 @@ public class JsonGenerator {
         return "[]";
     }
 
-    public static String generateE(List<Evidence> candidateAnswers) {
+    public static String generateE(List<CandidateEvidence> candidateAnswers) {
         if(candidateAnswers==null){
             return "[]";
         }
