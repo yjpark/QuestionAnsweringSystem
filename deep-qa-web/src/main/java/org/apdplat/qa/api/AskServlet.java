@@ -74,9 +74,8 @@ public class AskServlet extends HttpServlet {
         if (questionStr != null && questionStr.trim().length() > 3) {
             question = DoctorQuestionAnsweringSystem.getInstance().answerQuestion(questionStr);
             if (question != null) {
-                List l = question.getTopNEvidence(topN);
-                for (Object o: l) {
-                    Evidence evidence = (Evidence)o;
+                List<Evidence> l = question.getTopNEvidence(topN);
+                for (Evidence evidence: l) {
                     CandidateEvidence candidateEvidence = new CandidateEvidence();
                     candidateEvidence.setAnswer(evidence.getSnippet());
                     candidateEvidence.setQuestionStr(questionStr);

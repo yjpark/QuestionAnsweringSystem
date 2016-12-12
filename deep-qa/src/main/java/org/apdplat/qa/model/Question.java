@@ -31,6 +31,8 @@ import org.apdplat.word.segmentation.Word;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.Math.rint;
+
 /**
  * 问题有多个证据 证据用于提取候选答案
  *
@@ -277,12 +279,13 @@ public class Question {
      * @param N
      * @return
      */
-    public List<Object> getTopNEvidence(int N){
-        return this.getEvidences().stream().sorted(new Comparator<Evidence>() {
-            @Override
-            public int compare(Evidence o1, Evidence o2) {
-                return (int)Math.rint(o2.getScore() - o1.getScore());
-            }
-        }).limit(N).collect(Collectors.toList());
+    public List<Evidence> getTopNEvidence(int N){
+        return this.getEvidences().stream()
+                .sorted((e1, e2) ->
+                        (int)rint(e2.getScore() - e1.getScore())
+                )
+                .filter(e -> e.getScore() > 3)
+                .limit(N)
+                .collect(Collectors.toList());
     }
 }
