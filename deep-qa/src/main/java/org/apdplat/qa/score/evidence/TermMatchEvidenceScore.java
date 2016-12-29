@@ -55,8 +55,10 @@ public class TermMatchEvidenceScore implements EvidenceScore {
         //2、对证据进行分词
         List<String> titleTerms = evidence.getTitleWords();
         List<String> snippetTerms = evidence.getSnippetWords();
+        List<String> prompts = evidence.getPromptsWords();
         LOG.debug("titleTerms:" + titleTerms);
         LOG.debug("snippetTerms:" + snippetTerms);
+        LOG.debug("prompts:" + prompts);
 		//3、不管语法关系或词序，直接对问题和证据的词进行匹配
         //对于问题中的词，在evidence中出现一次记一分
         double score = 0;
@@ -81,6 +83,12 @@ public class TermMatchEvidenceScore implements EvidenceScore {
             for (String snippetTerm : snippetTerms) {
                 if (questionTerm.equals(snippetTerm)) {
                     LOG.debug("snippet match: " + questionTerm + " " + snippetTerm);
+                    score += idf;
+                }
+            }
+            for(String promptTerm : prompts){
+                if (questionTerm.equals(promptTerm)) {
+                    LOG.debug("snippet match: " + questionTerm + " " + promptTerm);
                     score += idf;
                 }
             }

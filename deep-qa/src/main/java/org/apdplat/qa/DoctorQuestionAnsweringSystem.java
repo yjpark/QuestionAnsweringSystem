@@ -2,6 +2,7 @@ package org.apdplat.qa;
 
 import org.apdplat.qa.datasource.GitFileDataSource;
 import org.apdplat.qa.files.FilesConfig;
+import org.apdplat.qa.select.DoctorCandidateAnswerSelect;
 import org.apdplat.qa.system.CommonQuestionAnsweringSystem;
 import org.apdplat.qa.system.QuestionAnsweringSystem;
 

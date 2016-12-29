@@ -73,6 +73,9 @@ public class AskServlet extends HttpServlet {
         final  List<CandidateEvidence> evidences = new ArrayList<>();
         if (questionStr != null && questionStr.trim().length() > 3) {
             question = DoctorQuestionAnsweringSystem.getInstance().answerQuestion(questionStr);
+
+
+
             if (question != null) {
                 List<Evidence> l = question.getTopNEvidence(topN);
                 for (Evidence evidence: l) {

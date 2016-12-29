@@ -27,7 +27,7 @@ import org.apdplat.word.segmentation.Word;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
- * 证据由title和snippet组成 对于同一个问题来说，不同的证据的重要性是不一样的，所以证据有分值 证据有多个候选答案
+ * 证据由title和snippet,prompt,id组成 对于同一个问题来说，不同的证据的重要性是不一样的，所以证据有分值 证据有多个候选答案
  *
  * @author 杨尚川
  */
@@ -39,7 +39,29 @@ public class Evidence {
 
     private int id;
 
+    private String prompt;
+
     private CandidateAnswerCollection candidateAnswerCollection;
+
+    private double titleSimilarity = 0.0;
+
+    private double promptSimilarity = 0.0;
+
+    public double getTitleSimilarity() {
+        return titleSimilarity;
+    }
+
+    public void setTitleSimilarity(double titleSimilarity) {
+        this.titleSimilarity = titleSimilarity;
+    }
+
+    public double getPromptSimilarity() {
+        return promptSimilarity;
+    }
+
+    public void setPromptSimilarity(double promptSimilarity) {
+        this.promptSimilarity = promptSimilarity;
+    }
 
     public List<String> getTitleWords() {
         List<String> result = new ArrayList<>();
@@ -59,6 +81,22 @@ public class Evidence {
         return result;
     }
 
+    public List<String> getPromptsWords(){
+        List<String> result = new ArrayList<>();
+        List<Word> words = WordParser.parse(prompt);
+        for(Word word : words){
+            result.add(word.getText());
+        }
+        return result;
+    }
+
+    public void clearScore(){
+        this.score = 0.0;
+        this.titleSimilarity = 0.0;
+        this.promptSimilarity = 0.0;
+    }
+
+
     /**
      * 对证据进行分词
      *
@@ -66,7 +104,7 @@ public class Evidence {
      */
     public List<String> getWords() {
         List<String> result = new ArrayList<>();
-        List<Word> words = WordParser.parse(title + snippet);
+        List<Word> words = WordParser.parse(title + snippet + prompt);
         for (Word word : words) {
             result.add(word.getText());
         }
@@ -112,5 +150,13 @@ public class Evidence {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getPrompt() {
+        return prompt;
+    }
+
+    public void setPrompt(String prompt) {
+        this.prompt = prompt;
     }
 }

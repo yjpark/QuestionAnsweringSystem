@@ -22,6 +22,7 @@ package org.apdplat.qa.system;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apdplat.qa.datasource.DataSource;
 import org.apdplat.qa.datasource.FileDataSource;
@@ -181,7 +182,7 @@ public class QuestionAnsweringSystemImpl implements QuestionAnsweringSystem {
     @Override
     public List<Question> answerQuestions(List<Question> questions) {
         for (Question question : questions) {
-            question = questionClassifier.classify(question);
+            //question = questionClassifier.classify(question);
             LOG.info("开始处理Question " + (questionIndex++) + "：" + question.getQuestion() + " 【问题类型：" + question.getQuestionType() + "】");
             if (question.getQuestionType() == QuestionType.NULL) {
                 unknownTypeQuestions.add(question);
@@ -193,78 +194,14 @@ public class QuestionAnsweringSystemImpl implements QuestionAnsweringSystem {
             int i = 1;
             for (Evidence evidence : question.getEvidences()) {
                 LOG.debug("开始处理Evidence " + (i++));
-                //对证据进行评分
-                //证据的分值存储在evidence对象里面
+                evidence.clearScore();
+
                 evidenceScore.score(question, evidence);
-
-                LOG.debug("Evidence Detail");
-                LOG.debug("Title:" + evidence.getTitle());
-                LOG.debug("Snippet:" + evidence.getSnippet());
-                LOG.debug("Score:" + evidence.getScore());
-                LOG.debug("Words:" + evidence.getWords());
-                //提取候选答案
-                //候选答案存储在evidence对象里面
-                candidateAnswerSelect.select(question, evidence);
-                //从evidence对象里面获得候选答案
-                CandidateAnswerCollection candidateAnswerCollection = evidence.getCandidateAnswerCollection();
-
-                if (!candidateAnswerCollection.isEmpty()) {
-                    LOG.debug("Evidence候选答案(未评分)：");
-                    candidateAnswerCollection.showAll();
-                    LOG.debug("");
-                    //对候选答案进行打分
-                    candidateAnswerScore.score(question, evidence, candidateAnswerCollection);
-                    LOG.debug("Evidence候选答案(已评分)：");
-                    candidateAnswerCollection.showAll();
-                    LOG.debug("");
-                } else {
-                    LOG.debug("Evidence无候选答案");
-                }
 
                 LOG.debug("");
             }
-            LOG.info("************************************");
-            LOG.info("************************************");
-            LOG.info("Question " + question.getQuestion());
-            LOG.info("Question 候选答案：");
-            for (CandidateAnswer candidateAnswer : question.getAllCandidateAnswer()) {
-                LOG.info(candidateAnswer.getAnswer() + "  " + candidateAnswer.getScore());
-            }
-            int rank = question.getExpectAnswerRank();
-            LOG.info("ExpectAnswerRank: " + rank);
-            LOG.info("");
-            //完美答案
-            if (rank == 1) {
-                perfectQuestions.add(question);
-            }
-            //不完美答案
-            if (rank > 1) {
-                notPerfectQuestions.add(question);
-            }
-            //错误答案
-            if (rank == -1) {
-                wrongQuestions.add(question);
-            }
-            //计算mrr
-            if (rank > 0) {
-                mrr += (double) 1 / rank;
-            }
-            LOG.info("mrr: " + mrr);
-            LOG.info("perfectCount: " + getPerfectCount());
-            LOG.info("notPerfectCount: " + getNotPerfectCount());
-            LOG.info("wrongCount: " + getWrongCount());
-            LOG.info("unknownTypeCount: " + getUnknownTypeCount());
-            LOG.info("questionCount: " + getQuestionCount());
+
         }
-        LOG.info("");
-
-        LOG.info("MRR：" + getMRR() * 100 + "%");
-        LOG.info("回答完美率：" + (double) getPerfectCount() / getQuestionCount() * 100 + "%");
-        LOG.info("回答不完美率：" + (double) getNotPerfectCount() / getQuestionCount() * 100 + "%");
-        LOG.info("回答错误率：" + (double) getWrongCount() / getQuestionCount() * 100 + "%");
-        LOG.info("未知类型率：" + (double) getUnknownTypeCount() / getQuestionCount() * 100 + "%");
-
-        LOG.info("");
 
         return questions;
     }
@@ -328,6 +265,86 @@ public class QuestionAnsweringSystemImpl implements QuestionAnsweringSystem {
     @Override
     public List<Question> getUnknownTypeQuestions() {
         return unknownTypeQuestions;
+    }
+
+
+    public static  String selectAnswer(Question question){
+
+        List<Evidence> evidences = question.getTopNEvidence(4);
+
+        double variance = calc_variance(evidences);
+
+        if (evidences.size() >= 2) {
+            Evidence one = evidences.get(0);
+
+            if (variance > 3) {
+                return Integer.toString(one.getId());
+            } else {
+                evidences = evidences.stream()
+                        .sorted((e1, e2) -> e1.getTitleSimilarity() - e2.getTitleSimilarity()>0 ?-1:1)
+                        .filter(e -> e.getPromptSimilarity()> 0 && e.getTitleSimilarity() > 0)
+                        .collect(Collectors.toList());
+                if(evidences.isEmpty()){
+                    return "0";
+                }else {
+                    one = evidences.get(0);
+                    return Integer.toString(one.getId());
+                }
+            }
+        } else {
+            return "0";
+        }
+    }
+
+    public static  String selectAnswer2(Question question){
+        List<Evidence> evidences = question.getTopNEvidence(10);
+
+        double variance = calc_variance(evidences);
+
+        if (evidences.size() >= 2) {
+            Evidence one = evidences.get(0);
+
+            if (variance > 3
+                    || (one.getTitleSimilarity() > 0.8 && variance > 2)
+                    || (one.getPromptSimilarity() > 0.8 && variance > 2)) {
+
+                return Integer.toString(one.getId());
+            } else {
+                evidences = evidences.stream()
+                        .sorted((e1, e2) -> e1.getPromptSimilarity() - e2.getPromptSimilarity() > 0 ?-1:1)
+                        .filter(e -> e.getPromptSimilarity()> 0 && e.getTitleSimilarity() > 0)
+                        .collect(Collectors.toList());
+                if(evidences.isEmpty()){
+                    return "0";
+                }else {
+                    one = evidences.get(0);
+                    return Integer.toString(one.getId());
+                }
+            }
+        } else{
+            return "0";
+        }
+    }
+
+
+
+    /**
+     * 计算标准差
+     * @param values
+     */
+    public static double calc_variance(List<Evidence> values){
+        int count = values.size();
+
+        double ave = values.stream()
+                .mapToDouble(e -> e.getScore())
+                .sum() / count;
+
+        double variance = values.stream()
+                .mapToDouble(e -> e.getScore())
+                .map(v -> Math.pow((v - ave), 2) ).sum();
+        variance /= count;
+
+        return Math.sqrt(variance);
     }
 
     /**

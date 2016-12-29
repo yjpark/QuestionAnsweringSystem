@@ -22,7 +22,7 @@ public class DoctorCandidateAnswerSelect implements  CandidateAnswerSelect {
         answer.setAnswer(evidence.getSnippet());
         answer.setEvidence(evidence);
         candidateAnswerCollection.addAnswer(answer);
-        LOG.info(evidence.getSnippet());
+        //LOG.info(evidence.getSnippet());
         evidence.setCandidateAnswerCollection(candidateAnswerCollection);
     }
 

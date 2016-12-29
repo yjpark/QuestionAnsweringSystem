@@ -41,11 +41,7 @@ import org.apdplat.qa.score.answer.TermDistanceCandidateAnswerScore;
 import org.apdplat.qa.score.answer.TermDistanceMiniCandidateAnswerScore;
 import org.apdplat.qa.score.answer.TermFrequencyCandidateAnswerScore;
 import org.apdplat.qa.score.answer.TextualAlignmentCandidateAnswerScore;
-import org.apdplat.qa.score.evidence.BigramEvidenceScore;
-import org.apdplat.qa.score.evidence.CombinationEvidenceScore;
-import org.apdplat.qa.score.evidence.EvidenceScore;
-import org.apdplat.qa.score.evidence.SkipBigramEvidenceScore;
-import org.apdplat.qa.score.evidence.TermMatchEvidenceScore;
+import org.apdplat.qa.score.evidence.*;
 import org.apdplat.qa.select.CandidateAnswerSelect;
 import org.apdplat.qa.select.DoctorCandidateAnswerSelect;
 import org.slf4j.Logger;
@@ -93,9 +89,12 @@ public class DocotorQuestionAnsweringSystem extends QuestionAnsweringSystemImpl 
         skipBigramEvidenceScore.setScoreWeight(scoreWeight);
         //4.4、组合证据评分组件
         CombinationEvidenceScore combinationEvidenceScore = new CombinationEvidenceScore();
+        //4.5、文本相似度评分组件
+        SimilarityEvidenceSore similarityEvidenceSore = new SimilarityEvidenceSore();
         combinationEvidenceScore.addEvidenceScore(termMatchEvidenceScore);
         combinationEvidenceScore.addEvidenceScore(bigramEvidenceScore);
         combinationEvidenceScore.addEvidenceScore(skipBigramEvidenceScore);
+        combinationEvidenceScore.addEvidenceScore(similarityEvidenceSore);
 
         super.setEvidenceScore(combinationEvidenceScore);
 

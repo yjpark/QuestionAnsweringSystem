@@ -281,10 +281,7 @@ public class Question {
      */
     public List<Evidence> getTopNEvidence(int N){
         return this.getEvidences().stream()
-                .sorted((e1, e2) ->
-                        (int)rint(e2.getScore() - e1.getScore())
-                )
-                .filter(e -> e.getScore() > 3)
+                .sorted((e1, e2) -> (int)rint(e2.getScore() - e1.getScore()) )
                 .limit(N)
                 .collect(Collectors.toList());
     }

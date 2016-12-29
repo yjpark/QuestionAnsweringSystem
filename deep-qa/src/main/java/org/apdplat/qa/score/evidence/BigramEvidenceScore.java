@@ -59,7 +59,7 @@ public class BigramEvidenceScore implements EvidenceScore {
             patterns.add(pattern);
         }
         //3、在evidence中寻找模式，命中1个加2分
-        String text = evidence.getTitle() + evidence.getSnippet();
+        String text = evidence.getTitle() + evidence.getSnippet() + evidence.getPrompt();
         double score = 0;
         for (String pattern : patterns) {
             //计算二元表达式在证据中出现的次数，出现1次加2分
