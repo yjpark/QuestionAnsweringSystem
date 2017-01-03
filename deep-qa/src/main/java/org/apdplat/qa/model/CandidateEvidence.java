@@ -11,6 +11,10 @@ public class CandidateEvidence implements Comparable<CandidateEvidence>  {
 
     private double score = 1.0;
 
+
+
+    private int id;
+
     @Override
     public int compareTo(CandidateEvidence o) {
         if (o != null && o instanceof CandidateEvidence) {
@@ -69,5 +73,13 @@ public class CandidateEvidence implements Comparable<CandidateEvidence>  {
 
     public void setScore(double score) {
         this.score = score;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
