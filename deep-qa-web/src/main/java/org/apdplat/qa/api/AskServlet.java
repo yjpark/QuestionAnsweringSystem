@@ -24,6 +24,7 @@ import edu.stanford.nlp.util.StringUtils;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.regex.*;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -64,6 +65,11 @@ public class AskServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         
         String questionStr = request.getParameter("q");
+        String regEx="[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(questionStr);
+        questionStr = m.replaceAll(" ").trim();
+
         String n = request.getParameter("n");
         int topN = -1;
         if(n != null && StringUtils.isNumeric(n)){
