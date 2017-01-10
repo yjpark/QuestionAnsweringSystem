@@ -81,7 +81,7 @@ public class AskServlet extends HttpServlet {
             question = DoctorQuestionAnsweringSystem.getInstance().answerQuestion(questionStr);
 
             if (question != null) {
-                List<Evidence> l = question.getTopNEvidence(topN);
+                List<Evidence> l = DoctorQuestionAnsweringSystem.candidateEvidence(question, topN).getCandidateEvidence();
                 for (Evidence evidence: l) {
                     CandidateEvidence candidateEvidence = new CandidateEvidence();
                     candidateEvidence.setId(evidence.getId());
@@ -92,7 +92,7 @@ public class AskServlet extends HttpServlet {
                 }
             }
         }
-        LOG.info("问题："+questionStr); 
+        LOG.info("问题："+questionStr);
         try (PrintWriter out = response.getWriter()) {
             String json = JsonGenerator.generateE(evidences);
             out.println(json);

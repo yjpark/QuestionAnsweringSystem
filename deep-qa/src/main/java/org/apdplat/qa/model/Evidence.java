@@ -36,10 +36,9 @@ public class Evidence {
     private String title;
     private String snippet;
     private double score = 1.0;
-
     private int id;
-
     private String prompt;
+    private String stage;
 
     private CandidateAnswerCollection candidateAnswerCollection;
 
@@ -158,5 +157,13 @@ public class Evidence {
 
     public void setPrompt(String prompt) {
         this.prompt = prompt;
+    }
+
+    public String getStage() {
+        return stage;
+    }
+
+    public void setStage(String stage) {
+        this.stage = stage;
     }
 }

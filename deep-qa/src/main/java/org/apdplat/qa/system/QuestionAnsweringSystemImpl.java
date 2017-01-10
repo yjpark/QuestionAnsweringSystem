@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.hankcs.hanlp.suggest.Suggester;
 import org.apdplat.qa.datasource.DataSource;
 import org.apdplat.qa.datasource.FileDataSource;
 import org.apdplat.qa.files.FilesConfig;
@@ -268,7 +269,7 @@ public class QuestionAnsweringSystemImpl implements QuestionAnsweringSystem {
     }
 
 
-    public static  String selectAnswer(Question question){
+    public static  Evidence selectAnswer(Question question){
 
         List<Evidence> evidences = question.getTopNEvidence(4);
 
@@ -278,25 +279,24 @@ public class QuestionAnsweringSystemImpl implements QuestionAnsweringSystem {
             Evidence one = evidences.get(0);
 
             if (variance > 3) {
-                return Integer.toString(one.getId());
+                return one;
             } else {
                 evidences = evidences.stream()
                         .sorted((e1, e2) -> e1.getTitleSimilarity() - e2.getTitleSimilarity()>0 ?-1:1)
                         .filter(e -> e.getPromptSimilarity()> 0 && e.getTitleSimilarity() > 0)
                         .collect(Collectors.toList());
                 if(evidences.isEmpty()){
-                    return "0";
+                    return null;
                 }else {
-                    one = evidences.get(0);
-                    return Integer.toString(one.getId());
+                    return one;
                 }
             }
         } else {
-            return "0";
+            return null;
         }
     }
 
-    public static  String selectAnswer2(Question question){
+    public static  Evidence selectAnswer2(Question question){
         List<Evidence> evidences = question.getTopNEvidence(10);
 
         double variance = calc_variance(evidences);
@@ -308,25 +308,48 @@ public class QuestionAnsweringSystemImpl implements QuestionAnsweringSystem {
                     || (one.getTitleSimilarity() > 0.8 && variance > 2)
                     || (one.getPromptSimilarity() > 0.8 && variance > 2)) {
 
-                return Integer.toString(one.getId());
+                return one;
             } else {
                 evidences = evidences.stream()
                         .sorted((e1, e2) -> e1.getPromptSimilarity() - e2.getPromptSimilarity() > 0 ?-1:1)
                         .filter(e -> e.getPromptSimilarity()> 0 && e.getTitleSimilarity() > 0)
                         .collect(Collectors.toList());
                 if(evidences.isEmpty()){
-                    return "0";
+                    return null;
                 }else {
                     one = evidences.get(0);
-                    return Integer.toString(one.getId());
+                    return one;
                 }
             }
         } else{
-            return "0";
+            return null;
         }
     }
 
+    public static List<Evidence> suggest(Question question, final List<Evidence> evidences, int topN){
+        List<Evidence> selectEvicences;
+        Suggester suggester = new Suggester();
+        for (Evidence e: evidences) {
+            suggester.addSentence(e.getTitle());
+        }
+        List<String>  suggestList = suggester.suggest(question.getQuestion(), topN);
+        selectEvicences = suggestList.stream()
+            .map(t -> find_evidences(t, evidences))
+            .filter(e -> e != null)
+            .collect(Collectors.toList());
 
+        return selectEvicences;
+    }
+
+    public static Evidence find_evidences(String title, List<Evidence> evidences){
+        for (Evidence e: evidences
+             ) {
+            if(e.getTitle().equals(title)){
+                return e;
+            }
+        }
+        return null;
+    }
 
     /**
      * 计算标准差

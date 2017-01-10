@@ -26,6 +26,8 @@ import java.util.List;
 import org.apdplat.qa.datasource.DataSource;
 import org.apdplat.qa.datasource.FileDataSource;
 import org.apdplat.qa.files.FilesConfig;
+import org.apdplat.qa.model.Evidence;
+import org.apdplat.qa.model.Question;
 import org.apdplat.qa.questiontypeanalysis.patternbased.DefaultPatternMatchResultSelector;
 import org.apdplat.qa.questiontypeanalysis.patternbased.PatternBasedMultiLevelQuestionClassifier;
 import org.apdplat.qa.questiontypeanalysis.patternbased.PatternMatchResultSelector;
@@ -52,11 +54,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author 杨尚川
  */
-public class DocotorQuestionAnsweringSystem extends QuestionAnsweringSystemImpl {
+public class CommonDoctorQuestionAnsweringSystem extends QuestionAnsweringSystemImpl {
+
 
     private static final Logger LOG = LoggerFactory.getLogger(CommonQuestionAnsweringSystem.class);
 
-    public DocotorQuestionAnsweringSystem() {
+    public CommonDoctorQuestionAnsweringSystem() {
         LOG.info("开始构造问答系统");
         //1、默认评分组件权重
         ScoreWeight scoreWeight = new ScoreWeight();
@@ -91,10 +94,13 @@ public class DocotorQuestionAnsweringSystem extends QuestionAnsweringSystemImpl 
         CombinationEvidenceScore combinationEvidenceScore = new CombinationEvidenceScore();
         //4.5、文本相似度评分组件
         SimilarityEvidenceSore similarityEvidenceSore = new SimilarityEvidenceSore();
+        //4.6 文本建议评分组件
+        //SuggesterEvidenceScore suggesterEvidenceScore = new SuggesterEvidenceScore();
         combinationEvidenceScore.addEvidenceScore(termMatchEvidenceScore);
         combinationEvidenceScore.addEvidenceScore(bigramEvidenceScore);
         combinationEvidenceScore.addEvidenceScore(skipBigramEvidenceScore);
         combinationEvidenceScore.addEvidenceScore(similarityEvidenceSore);
+        //combinationEvidenceScore.addEvidenceScore(suggesterEvidenceScore);
 
         super.setEvidenceScore(combinationEvidenceScore);
 
@@ -154,7 +160,7 @@ public class DocotorQuestionAnsweringSystem extends QuestionAnsweringSystemImpl 
      * @param args
      */
     public static void main(String[] args) {
-        QuestionAnsweringSystem questionAnsweringSystem = new DocotorQuestionAnsweringSystem();
+        QuestionAnsweringSystem questionAnsweringSystem = new CommonDoctorQuestionAnsweringSystem();
         questionAnsweringSystem.answerQuestions();
     }
 }

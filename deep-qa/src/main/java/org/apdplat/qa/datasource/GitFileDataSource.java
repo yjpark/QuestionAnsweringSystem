@@ -1,11 +1,12 @@
 package org.apdplat.qa.datasource;
 
+import org.apdplat.qa.DoctorQuestionAnsweringSystem;
 import org.apdplat.qa.files.FilesConfig;
+import org.apdplat.qa.model.DoctorReply;
 import org.apdplat.qa.model.Evidence;
 import org.apdplat.qa.model.Question;
 import org.apdplat.qa.system.QuestionAnsweringSystem;
-import org.apdplat.qa.system.DocotorQuestionAnsweringSystem;
-import org.apdplat.qa.system.QuestionAnsweringSystemImpl;
+import org.apdplat.qa.system.CommonDoctorQuestionAnsweringSystem;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -114,6 +115,10 @@ public class GitFileDataSource implements  DataSource{
                     if(line.startsWith("Prompt:")){
                         answer.setPrompt(line.substring(7).trim());
                     }
+                    line = reader.readLine();
+                    if(line.startsWith("Stage:")){
+                        answer.setStage(line.substring(6).trim());
+                    }
 
                     if (answer.getTitle() != null && answer.getSnippet() != null && question != null) {
                         question.addEvidence(answer);
@@ -171,7 +176,7 @@ public class GitFileDataSource implements  DataSource{
         //Question question = dataSource.getQuestions().get(0);
         //question.setQuestion("今天天气是什么");
 
-        DocotorQuestionAnsweringSystem questionAnsweringSystem = new DocotorQuestionAnsweringSystem();
+        CommonDoctorQuestionAnsweringSystem questionAnsweringSystem = new CommonDoctorQuestionAnsweringSystem();
         //questionAnsweringSystem.answerQuestion(question);
         try{
             testSiample(dataSource, questionAnsweringSystem);
@@ -186,7 +191,7 @@ public class GitFileDataSource implements  DataSource{
     /**
      * 测试样本文件 question_siample.txt
      */
-    public static void testSiample(DataSource dataSource, DocotorQuestionAnsweringSystem questionAnsweringSystem) throws Exception {
+    public static void testSiample(DataSource dataSource, CommonDoctorQuestionAnsweringSystem questionAnsweringSystem) throws Exception {
         Question question = dataSource.getQuestions().get(0);
 
         String file = "question_siample.txt";
@@ -221,7 +226,6 @@ public class GitFileDataSource implements  DataSource{
             String[] terms = line.split("\\|");
             String questionStr = terms[0];
             String expectid = terms[1].trim().toLowerCase();
-            String result = "0";
 
             question.setQuestion(questionStr);
 
@@ -241,23 +245,35 @@ public class GitFileDataSource implements  DataSource{
                 writer.write(Double.toString(expectEvidences.get(0).getPromptSimilarity()) + "\t");
             }
 
-            evidences = question.getTopNEvidence(4);
+            DoctorReply reply = DoctorQuestionAnsweringSystem.candidateEvidence(question, 3);
+            Evidence answer = reply.getAnswer();
+            List<Evidence> candidateEvidences = reply.getCandidateEvidence();
 
-            for(int inx = 0; inx < 3 ;inx++){
-                Evidence e = evidences.get(inx);
-                if(Integer.toString(e.getId()).equals(expectid)){
-                    result = "0.5";
+            String answerid = answer == null ? "0": Integer.toString(answer.getId());
+
+            String result = "0";
+            for(int inx = 0; inx < candidateEvidences.size();inx++) {
+                if(candidateEvidences.size() == 0) {break;};
+                if(inx == 0 && hitAnswer(expectid, candidateEvidences.get(inx).getId() )  ){
+                    result = "1";
+                    break;
                 }
-                writer.write( Integer.toString(e.getId()) + "\t" + e.getScore() + "\t");
-                writer.write(Double.toString(e.getTitleSimilarity()) + "\t");
-                writer.write(Double.toString(e.getPromptSimilarity()) + "\t");
+                if(hitAnswer(expectid, candidateEvidences.get(inx).getId() )){
+                    result = "0.5";
+                    break;
+                }
+                if(hitAnswer(expectid, answerid)){
+                    result = "1";
+                    break;
+                }
             }
 
-            String answerid = QuestionAnsweringSystemImpl.selectAnswer2(question);
-
-
-            if(answerid.toLowerCase().equals(expectid)){
-                result =  "1";
+            for(int inx = 0; inx < candidateEvidences.size() ;inx++) {
+                if(candidateEvidences.size() == 0) {break;};
+                Evidence e = candidateEvidences.get(inx);
+                writer.write(Integer.toString(e.getId()) + "\t" + e.getScore() + "\t");
+                writer.write(Double.toString(e.getTitleSimilarity()) + "\t");
+                writer.write(Double.toString(e.getPromptSimilarity()) + "\t");
             }
 
             writer.write("");
@@ -272,5 +288,20 @@ public class GitFileDataSource implements  DataSource{
         writer.close();
     }
 
+
+    public static boolean hitAnswer(String expectid, int intid){
+        String id = Integer.toString(intid);
+        return hitAnswer(expectid, id);
+    }
+
+    public static boolean hitAnswer(String expectid, String id ){
+        String[] ids = expectid.split(",");
+        for (String expectideliment: ids) {
+            if(expectideliment.equals(id)){
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
