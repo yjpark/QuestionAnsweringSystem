@@ -173,18 +173,19 @@ public class GitFileDataSource implements  DataSource{
     public static void main(String[] args) {
         DataSource dataSource = new GitFileDataSource(FilesConfig.doctorMaterial);
 
-        //Question question = dataSource.getQuestions().get(0);
-        //question.setQuestion("今天天气是什么");
+        Question question = dataSource.getQuestions().get(0);
+        question.setQuestion("长了好多斤怎么办？");
 
         CommonDoctorQuestionAnsweringSystem questionAnsweringSystem = new CommonDoctorQuestionAnsweringSystem();
-        //questionAnsweringSystem.answerQuestion(question);
-        try{
-            testSiample(dataSource, questionAnsweringSystem);
-
-        }catch(Exception e){
-            e.printStackTrace();
-        };
-        //LOG.info("答案:" + question.getExpectAnswer());
+        questionAnsweringSystem.answerQuestion(question);
+//        try{
+//            testSiample(dataSource, questionAnsweringSystem);
+//
+//        }catch(Exception e){
+//            e.printStackTrace();
+//        };
+        DoctorReply reply = DoctorQuestionAnsweringSystem.candidateEvidence(question, 3);
+        LOG.info("答案:" + question.getExpectAnswer());
 
     }
 
@@ -235,7 +236,7 @@ public class GitFileDataSource implements  DataSource{
 
             List<Evidence> expectEvidences =
                     evidences.stream()
-                            .filter(e -> Integer.toString(e.getId()).equals(expectid))
+                            .filter(e -> hitAnswer(expectid, Integer.toString(e.getId())) )
                             .collect(Collectors.toList());
             if(expectEvidences.isEmpty()){
                 writer.write("0 \t 0\t0\t");
@@ -253,7 +254,9 @@ public class GitFileDataSource implements  DataSource{
 
             String result = "0";
             for(int inx = 0; inx < candidateEvidences.size();inx++) {
-                if(candidateEvidences.size() == 0) {break;};
+                if(candidateEvidences.size() == 0) {
+                    break;
+                };
                 if(inx == 0 && hitAnswer(expectid, candidateEvidences.get(inx).getId() )  ){
                     result = "1";
                     break;
@@ -267,16 +270,23 @@ public class GitFileDataSource implements  DataSource{
                     break;
                 }
             }
-
-            for(int inx = 0; inx < candidateEvidences.size() ;inx++) {
-                if(candidateEvidences.size() == 0) {break;};
-                Evidence e = candidateEvidences.get(inx);
-                writer.write(Integer.toString(e.getId()) + "\t" + e.getScore() + "\t");
-                writer.write(Double.toString(e.getTitleSimilarity()) + "\t");
-                writer.write(Double.toString(e.getPromptSimilarity()) + "\t");
+            if(hitAnswer(expectid, answerid)){
+                result = "1";
             }
 
-            writer.write("");
+            for(int inx = 0; inx < 3; inx++) {
+                if(candidateEvidences.size() > inx){
+                    Evidence e = candidateEvidences.get(inx);
+                    writer.write(Integer.toString(e.getId()) + "\t" + e.getScore() + "\t");
+                    writer.write(Double.toString(e.getTitleSimilarity()) + "\t");
+                    writer.write(Double.toString(e.getPromptSimilarity()) + "\t");
+                }else{
+                    writer.write("\t" + "\t");
+                    writer.write("\t");
+                    writer.write("\t");
+                }
+            }
+
             writer.write(answerid + "\t" + result +"\n");
 
             question.setExpectAnswer("0");

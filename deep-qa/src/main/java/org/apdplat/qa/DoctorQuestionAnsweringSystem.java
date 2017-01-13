@@ -1,5 +1,6 @@
 package org.apdplat.qa;
 
+import com.hankcs.hanlp.HanLP;
 import org.apdplat.qa.datasource.GitFileDataSource;
 import org.apdplat.qa.files.FilesConfig;
 import org.apdplat.qa.model.DoctorReply;
@@ -50,8 +51,22 @@ public class DoctorQuestionAnsweringSystem {
         }else{
             List<Evidence> tmp = question.getTopNEvidence(20);
             tmp = QuestionAnsweringSystemImpl.suggest(question, tmp, topN);
-            tmp = tmp.stream().filter(e -> e.getScore() > 0).collect(Collectors.toList());
-            result.addAll(tmp);
+            List<String> keywords = HanLP.extractKeyword(question.getQuestion(), 1);
+
+            if(!keywords.isEmpty()){
+                String keyword = keywords.get(0);
+                tmp = tmp.stream()
+                        .filter(e -> e.getScore() > 0)
+                        .filter(e -> contentKeywords(e, keyword))
+                        .collect(Collectors.toList());
+                result.addAll(tmp);
+            }
+//            else{
+//                tmp = tmp.stream()
+//                        .filter(e -> e.getScore() > 0)
+//                        .collect(Collectors.toList());
+//                result.addAll(tmp);
+//            }
         }
         reply.setCandidateEvidence(result);
         return reply;
@@ -59,6 +74,13 @@ public class DoctorQuestionAnsweringSystem {
 
     public static void main(String[] args){
 
+    }
+
+    public static boolean  contentKeywords(Evidence e, String keyword){
+        if(e.getTitleWords().contains(keyword)
+                || e.getPromptsWords().contains(keyword)) return true;
+
+        return false;
     }
 
 }

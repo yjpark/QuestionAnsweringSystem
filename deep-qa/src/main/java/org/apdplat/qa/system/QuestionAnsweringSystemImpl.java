@@ -194,12 +194,8 @@ public class QuestionAnsweringSystemImpl implements QuestionAnsweringSystem {
             }
             int i = 1;
             for (Evidence evidence : question.getEvidences()) {
-                LOG.debug("开始处理Evidence " + (i++));
                 evidence.clearScore();
-
                 evidenceScore.score(question, evidence);
-
-                LOG.debug("");
             }
 
         }
@@ -342,8 +338,7 @@ public class QuestionAnsweringSystemImpl implements QuestionAnsweringSystem {
     }
 
     public static Evidence find_evidences(String title, List<Evidence> evidences){
-        for (Evidence e: evidences
-             ) {
+        for (Evidence e: evidences) {
             if(e.getTitle().equals(title)){
                 return e;
             }
