@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+mvn install
+mvn exec:java -Dexec.mainClass="org.apdplat.qa.datasource.GitFileDataSource"
